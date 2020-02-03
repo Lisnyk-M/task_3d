@@ -92,7 +92,7 @@ function getIndexesPoligon(vrtsX, vrtsY){
     p.vertex2 = vertex2;
     p.vertex3 = vertex3;    
     p.arrayOut = [0, 0, 0, 0];
-    var ktx = [9.9, 11.4, 7.5, 8];
+    // var ktx = [9.9, 11.4, 7.5, 8];
 
     if (!isParalel(vrtsX, vrtsY)){
         p.vertex0.x = (Math.min (vrtsX[0], vrtsX[1], vrtsX[2], vrtsX[3]));
@@ -104,8 +104,8 @@ function getIndexesPoligon(vrtsX, vrtsY){
         p.vertex1.index = gipIndexOf(vrtsY, p.vertex1.y);
         p.vertex2.index = gipIndexOf(vrtsX, p.vertex2.x);
         p.vertex3.index = gipIndexOf(vrtsY, p.vertex3.y);
-        var gggg = Math.max (ktx[0], ktx[1], ktx[2], ktx[3]);
-        var hhh = gipIndexOf([5, 7, 9, 3], 3.9);
+        // var gggg = Math.max (ktx[0], ktx[1], ktx[2], ktx[3]);
+        // var hhh = gipIndexOf([5, 7, 9, 3], 3.9);
         p.arrayOut[0] = p.vertex0.index;
         p.arrayOut[1] = p.vertex1.index;
         p.arrayOut[2] = p.vertex2.index;
@@ -122,7 +122,7 @@ function getIndexesPoligon(vrtsX, vrtsY){
     return p;
 }
 //==================================================================================
-function formingData(inV, inF){   //input array vertices and array faces; output two arrays [4] and [4]
+function formingData(inV, inF){   //input array vertices and array faces; output two arrays 
     var finX0, finX1, finX2, finX3;
     var finY0, finY1, finY2, finY3;
     var containX = [];
@@ -205,11 +205,11 @@ function formingData(inV, inF){   //input array vertices and array faces; output
         for (n = 0; n < arrInput.length; n++){
             obj = arrInput[n];
             ar2 = pObjs[n];
-            cg[n] = new THREE.CubeGeometry(obj.polygonWidth*scale, obj.polygonHeight*scale, 1);
+            cg[n] = new THREE.CubeGeometry(obj.polygonWidth*1, obj.polygonHeight*1, 1);
             arOut[n] = new THREE.Mesh(cg[n], cubeM); 
             arOut[n].receiveShadow = true 
             // scene.add(arOut[n]);
-            arOut[n].position.set(obj.posX * scale, obj.posY * scale, 1 * scale);
+            arOut[n].position.set(obj.posX * 1, obj.posY * 1, 1 * 1);
         }  
         return arOut; 
     }
@@ -244,22 +244,24 @@ function formingData(inV, inF){   //input array vertices and array faces; output
             sinBeta = ((kitY[2] - kitY[3]) / polygonWidth);
             beta =  Math.asin(sinBeta);
             cosBeta = Math.cos(beta);
-            angle = beta * 180 / Math.PI;
+            angle = beta * (180 / Math.PI);
            
             // console.log('radius = ', radius);
             var sinGamma = (polygonHeight / 2 )/radius;
             // var alpha = Math.asin(sinGamma) + beta;
-            var alpha = Math.asin(sinGamma)*180/Math.PI + beta*180/Math.PI;
+            // var alpha = Math.asin(sinGamma)*180/Math.PI + beta*180/Math.PI;
+            var alpha = Math.asin(sinGamma) + beta;
             var ms = radius * Math.sin(alpha*Math.PI/180);
             var ns = radius * Math.cos(alpha*Math.PI/180);
-            // console.log('alpha = ', alpha, ' m = ', ms, 'n = ', ns);
-
+            
             posY = kitY[3] + ms;
             posX = kitX[3] + ns;
             posX = (kitX[0] + kitX[1] + kitX[2] + kitX[3])/4;
             posY = (kitY[0] + kitY[1] + kitY[2] + kitY[3])/4;
+            // console.log('kitx = ', kitX[0], kitX[1], kitX[2], kitX[3]);
+            // console.log('kitY = ', kitY[0], kitY[1], kitY[2], kitY[3]);
             
-            // console.log('cosBeta = ', cosBeta, ' PosX = ', posX, 'PosY = ', posY);
+            //  console.log('cosBeta = ', cosBeta, ' PosX = ', posX, 'PosY = ', posY);
             // console.log('angle = ', angle, ' width = ', polygonWidth, ' height = ', polygonHeight);
             // console.log('sinBeta = ', ax.length);
             if (polygonHeight > polygonWidth){

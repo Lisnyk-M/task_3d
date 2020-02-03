@@ -54,6 +54,7 @@ window.onload=function(){
         iterations: 8, 
         broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
         worldscale: 10, // scale full world 
+        // worldrotation: [20,20,20],
         random: true,  // randomize sample
         info: false,   // calculate statistic or not
         gravity: [0,-9.8,0] 
@@ -129,10 +130,43 @@ window.onload=function(){
     for (var cnt = 0; cnt < cpo.length; cnt++){                      
         namesObjects[cnt] = world.add(cpo[cnt]);
         sceneObjects[cnt].position.copy(namesObjects[cnt].getPosition() );      
-        sceneObjects[cnt].quaternion.copy(namesObjects[cnt].getQuaternion() );
+        // sceneObjects[cnt].quaternion.copy(namesObjects[cnt].getQuaternion() );
+        var qtrn = namesObjects[cnt].getQuaternion();
+        // this.console.log('quaternion = ', qtrn);
+        // qtrn.z *= 1.01;     //не зрозумілий глюк. Без цього  
+        // qtrn.w *= 1.01;     //фізичні обєкти повернуті на невеличкий кут відносно реагування сфер
+
+        sceneObjects[cnt].quaternion.copy(qtrn);
         sceneObjects[cnt].receiveShadow = true;
     }
     //============================phisics geom============================
+    //=========================tex phis ======================
+    function basicTexture(n){
+        var canvas = document.createElement( 'canvas' );
+        canvas.width = canvas.height = 64;
+        var ctx = canvas.getContext( '2d' );
+        var color;
+        // if(n===0) color = "#3884AA";// sphere58AA80
+        if(n===0) color = "#005500";
+        if(n===1) color = "#61686B";// sphere sleep
+        if(n===2) color = "#AA6538";// box
+        if(n===3) color = "#61686B";// box sleep
+        if(n===4) color = "#AAAA38";// cyl
+        if(n===5) color = "#61686B";// cyl sleep
+        ctx.fillStyle = color;
+        ctx.fillRect(0, 0, 64, 64);
+        ctx.fillStyle = "rgba(30, 30, 30, 1)";
+        ctx.fillRect(0, 0, 32, 32);
+        ctx.fillRect(32, 32, 32, 32);
+        // ctx.beginPath();
+        // ctx.arc(32, 32, 8, 0, 2* Math.PI);
+        // ctx.stroke();
+
+        var tx = new THREE.Texture(canvas);
+        tx.needsUpdate = true;
+        return tx;
+    }
+    //=================================================================
     var scale = 1;
     var box_floor_phis_geometry = new THREE.CubeGeometry(10, 1, 10);
     var floor = new THREE.Mesh(box_floor_phis_geometry, shaderMaterial);
@@ -143,9 +177,10 @@ window.onload=function(){
 
     var arSpheresMesh = [];
     var arGeom = [];
-    var sphM = new THREE.MeshPhongMaterial({color: 0x005500, /*side: THREE.DoubleSide, */wireframe: false});
+    var sphM = new THREE.MeshPhongMaterial({map: basicTexture(0), /*side: THREE.DoubleSide, */wireframe: false,
+                                            specular: 0x080808});
     for (var nn = 0; nn < arSpheres.length; nn++){
-        arGeom = new THREE.SphereBufferGeometry(SIZE_SPHERES, 10, 10);
+        arGeom = new THREE.SphereBufferGeometry(SIZE_SPHERES, 16, 16);  //default = 10, 10
         arSpheresMesh[nn] = new THREE.Mesh(arGeom, sphM);
         arSpheresMesh[nn].castShadow = true;
         scene.add(arSpheresMesh[nn]);    
@@ -161,9 +196,11 @@ window.onload=function(){
             }
         });
 		var body = meshes[0];   
-		body.scale.set(10, 10, 10);		
+        body.scale.set(10, 10, 10);
+        body.rotation.set(0, 0, 0);
 		body.receiveShadow = true;
-		scene.add(body);      
+        scene.add(body);  
+        // console.log('visual model = ', body.geometry.attributes.position);    
         body.material = new THREE.MeshPhongMaterial({  
             color: 0xcc0000,                 
             specular: 0x333333,                       
@@ -224,13 +261,11 @@ window.onload=function(){
     });
 	
     var rendering = function(){  
-//=======================key test====================
+        //=======================key test====================
         if (k_left)
-            angle += angle_change;
-            angle %= 2*Math.PI;
+            angle += angle_change;        
         if (k_right)
-            angle -= angle_change;
-            angle %= 2*Math.PI;
+            angle -= angle_change;            
         if (k_up){
             z -=0.2*Math.cos(angle);
             x -=0.2*Math.sin(angle);        
@@ -239,19 +274,20 @@ window.onload=function(){
             z +=0.2*Math.cos(angle);
             x +=0.2*Math.sin(angle);
         }
-//======================= end key test====================
-// update world
-world.step();
+        angle %= 2*Math.PI;
+        //======================= end key test====================
+        // update world
+        world.step();
 
-for (var mp = 0; mp < arSpheres.length; mp++){
-    var mpos = arSpheres[mp].getPosition();
-    if (mpos.y < -30){
-        arSpheres[mp].resetPosition(0, 13, 0);
-    }
-    arSpheresMesh[mp].position.copy (arSpheres[mp].getPosition() );
-    arSpheresMesh[mp].quaternion.copy ( arSpheres[mp].getQuaternion() );    
-}
-//-----------------------end of phisics-------------------
+        for (var mp = 0; mp < arSpheres.length; mp++){
+            var mpos = arSpheres[mp].getPosition();
+            if (mpos.y < -30){
+                arSpheres[mp].resetPosition(0, 13, 0);
+            }
+            arSpheresMesh[mp].position.copy (arSpheres[mp].getPosition() );
+            arSpheresMesh[mp].quaternion.copy ( arSpheres[mp].getQuaternion() );    
+        }
+        //-----------------------end of phisics-------------------
         strela.position.z = z + -20;
         strela.position.x = x;
         strela.rotation.y = angle;

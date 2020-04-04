@@ -4,4 +4,4 @@
 [Демонстрація] https://lisnyk-m.github.io/task_3d/
 
 
-![screenshot](/путь/к/изображению.jpg "Скріншот")
+![screenshot](scr.png "Скріншот")
